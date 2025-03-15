@@ -18,6 +18,11 @@ type UserMeta struct {
 	Pagination UserPagination `json:"pagination"`
 }
 
+type ContainersCountReturn struct {
+	AliveCount int `json:"alive_count"`
+	Count      int `json:"count"`
+}
+
 type UserPagination struct {
 	Page    int `json:"page"`
 	Next    int `json:"next"`
@@ -61,6 +66,50 @@ func getUsers(apiKey string, apiEndpoint string) UserReturn {
 
 	return users
 }
+
+func getContainersCount(apiKey string, apiEndpoint string) ContainersCountReturn {
+	// Create a new HTTP request with the Authorization header
+	req, err := http.NewRequest("GET", apiEndpoint+"/admin/containers/count", nil)
+	if err != nil {
+		panic(err)
+	}
+	req.Header.Set("Authorization", "Token "+apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Send the HTTP request and retrieve the response
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	var count ContainersCountReturn
+	err = json.NewDecoder(resp.Body).Decode(&count)
+
+	return count
+}
+
+func countContainers(containerC chan ContainersCountReturn) {
+	go func() {
+		for {
+			containers := <-containerC
+			containersAliveTotal.Set(float64(containers.AliveCount))
+			containersTotal.Set(float64(containers.Count))
+		}
+	}()
+}
+
+var (
+	containersAliveTotal = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "alive_containers_total",
+		Help: "The total number of alive containers",
+	})
+	containersTotal = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "containers_total",
+		Help: "The total number of containers",
+	})
+)
 
 func countUsers(usersC chan UserReturn) {
 	go func() {

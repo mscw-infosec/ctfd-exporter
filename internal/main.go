@@ -33,6 +33,9 @@ func main() {
 	// Build API URL
 	apiEndpoint := ctfdUrl + "/api/v1"
 
+	// Owl URL
+	owlUrl := ctfdUrl + "/plugins/ctfd-owl"
+
 	// Get polling rate
 	pollingRateStr := os.Getenv("POLL_RATE")
 	if pollingRateStr == "" {
@@ -53,6 +56,7 @@ func main() {
 	scoreboardC := make(chan ScoreboardReturn)
 	challengesC := make(chan ChallengeReturn)
 	submissionsC := make(chan []SubmissionReturn)
+	containersC := make(chan ContainersCountReturn)
 
 	go func() {
 		for range Ticker.C {
@@ -61,9 +65,11 @@ func main() {
 			scoreboardC <- getScoreboard(apiKey, apiEndpoint)
 			challengesC <- getChallenges(apiKey, apiEndpoint)
 			submissionsC <- getSubmissionsAll(apiKey, apiEndpoint)
+			containersC <- getContainersCount(apiKey, owlUrl)
 		}
 	}()
 
+	countContainers(containersC)
 	countUsers(usersC)
 	countTeams(teamsC)
 	countChallenges(challengesC)

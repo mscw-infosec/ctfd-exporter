@@ -5,7 +5,13 @@ services:
       CTFD_API: $CTFD_API
       CTFD_URL: $CTFD_URL
       POLL_RATE: $POLL_RATE
-    ports:
-      - 2112:2112
+    expose:
+      - 2112
     restart: unless-stopped
-    
+  nginx:
+    image: nginx
+    ports:
+      - "9095:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd

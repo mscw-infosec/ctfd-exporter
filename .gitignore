@@ -23,3 +23,5 @@ go.work
 ctfd_test_instance/
 
 *.env
+.idea
+nginx/.htpasswd
