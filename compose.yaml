@@ -1,6 +1,6 @@
 services:
   ctfd-exporter:
-    image: ghcr.io/eliabir/ctfd-exporter:latest
+    build: .
     environment:
       CTFD_API: $CTFD_API
       CTFD_URL: $CTFD_URL

@@ -37,9 +37,9 @@ type Submission struct {
 	TeamID      int            `json:"team_id"`
 	Team        SubmissionTeam `json:"team"`
 	Challenge   SubmissionChallenge
-	Provided    string         `json:"provided"`
-	User        SubmissionUser `json:"user"`
-	ChallengeID int            `json:"challenge_id"`
+	Provided    string `json:"provided"`
+	User        int    `json:"user"`
+	ChallengeID int    `json:"challenge_id"`
 }
 
 type SubmissionTeam struct {
